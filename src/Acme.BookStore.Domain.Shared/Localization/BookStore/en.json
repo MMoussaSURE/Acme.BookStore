@@ -41,7 +41,16 @@
     "Authors": "Authors",
     "AuthorDeletionConfirmationMessage": "Are you sure to delete the author '{0}'?",
     "BirthDate": "Birth date",
-    "NewAuthor": "New author"
+    "NewAuthor": "New author",
+    "Enum:ClientType.1": "External",
+    "Enum:ClientType.2": "Internal",
+    "BookStore:00002": "There is already an client with the same name: {name}",
+    "Permission:Clients": "Client Management",
+    "Permission:Clients.Create": "Creating new clients",
+    "Permission:Clients.Edit": "Editing the clients",
+    "Permission:Clients.Delete": "Deleting the clients",
+    "Menu:Clients": "Clients",
+    "Clients": "Clients"
 
 
 

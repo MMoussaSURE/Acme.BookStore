@@ -1,5 +1,6 @@
 ﻿using Acme.BookStore.Authors;
 using Acme.BookStore.Books;
+using Acme.BookStore.Clients;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
@@ -56,8 +57,17 @@ public class BookStoreDbContext :
 
     #endregion
 
+    #region Books
     public DbSet<Book> Books { get; set; }
+    #endregion
+
+    #region Authors
     public DbSet<Author> Authors { get; set; }
+    #endregion
+
+    #region Clients
+    public DbSet<Client> Clients { get; set; }
+    #endregion
 
     public BookStoreDbContext(DbContextOptions<BookStoreDbContext> options)
         : base(options)
@@ -88,16 +98,18 @@ public class BookStoreDbContext :
         //    b.ConfigureByConvention(); //auto configure for the base class props
         //    //...
         //});
+        #region Books
         builder.Entity<Book>(b =>
         {
             b.ToTable(BookStoreConsts.DbTablePrefix + "Books", BookStoreConsts.DbSchema);
             b.ConfigureByConvention(); //auto configure for the base class props
             b.Property(x => x.Name).IsRequired().HasMaxLength(128);
-
             // ADD THE MAPPING FOR THE RELATION
             b.HasOne<Author>().WithMany().HasForeignKey(x => x.AuthorId).IsRequired();
         });
+        #endregion
 
+        #region Authors
         builder.Entity<Author>(b =>
         {
             b.ToTable(BookStoreConsts.DbTablePrefix + "Authors",
@@ -111,6 +123,22 @@ public class BookStoreDbContext :
 
             b.HasIndex(x => x.Name);
         });
+        #endregion
 
+        #region Clients
+        builder.Entity<Client>(b =>
+        {
+            b.ToTable(BookStoreConsts.DbTablePrefix + "Clients",
+                BookStoreConsts.DbSchema);
+
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name)
+                .IsRequired()
+                .HasMaxLength(AuthorConsts.MaxNameLength);
+
+            b.HasIndex(x => x.Name);
+        });
+        #endregion
     }
 }
