@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Threading.Tasks;
+using Acme.BookStore.BackgroundJob;
 using Acme.BookStore.Permissions;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
+using Volo.Abp.BackgroundJobs;
 using Volo.Abp.Domain.Repositories;
 
 namespace Acme.BookStore.Authors;
@@ -14,18 +17,18 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
 {
     private readonly IAuthorRepository _authorRepository;
     private readonly AuthorManager _authorManager;
-
-    public AuthorAppService(
-        IAuthorRepository authorRepository,
-        AuthorManager authorManager)
+    private readonly IBackgroundJobManager _backgroundJobManager;
+    public AuthorAppService(IBackgroundJobManager backgroundJobManager ,IAuthorRepository authorRepository,AuthorManager authorManager)
     {
         _authorRepository = authorRepository;
         _authorManager = authorManager;
+        _backgroundJobManager = backgroundJobManager;
     }
 
     public async Task<AuthorDto> GetAsync(Guid id)
     {
         var author = await _authorRepository.GetAsync(id);
+        await _backgroundJobManager.EnqueueAsync(new EmailSendingArgs{ EmailAddress = "mmoussa@sure.com.sa",Subject = "You've successfully get your data!", Body = "..." },priority:BackgroundJobPriority.High,delay:TimeSpan.FromSeconds(1));
         return ObjectMapper.Map<Author, AuthorDto>(author);
     }
     public async Task<PagedResultDto<AuthorDto>> GetListAsync(GetAuthorListDto input)

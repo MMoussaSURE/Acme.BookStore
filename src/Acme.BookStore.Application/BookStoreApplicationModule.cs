@@ -1,11 +1,14 @@
-﻿using Volo.Abp.Account;
+using Volo.Abp.Account;
 using Volo.Abp.AutoMapper;
+using Volo.Abp.BackgroundJobs;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
+using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
+
 
 namespace Acme.BookStore;
 
@@ -19,7 +22,10 @@ namespace Acme.BookStore;
     typeof(AbpFeatureManagementApplicationModule),
     typeof(AbpSettingManagementApplicationModule)
     )]
-public class BookStoreApplicationModule : AbpModule
+[DependsOn(typeof(AbpLocalizationModule))]
+[DependsOn(typeof(AbpBackgroundJobsModule))]
+
+    public class BookStoreApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
@@ -27,5 +33,11 @@ public class BookStoreApplicationModule : AbpModule
         {
             options.AddMaps<BookStoreApplicationModule>();
         });
+        Configure<AbpBackgroundJobWorkerOptions>(options =>
+        {
+            options.DefaultTimeout = 864000; //10 days (as seconds)
+        });
     }
+
+
 }
