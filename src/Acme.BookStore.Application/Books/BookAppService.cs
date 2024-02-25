@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Acme.BookStore.Authors;
 using Acme.BookStore.Permissions;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Distributed;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Application.Services;
+using Volo.Abp.Caching;
 using Volo.Abp.Domain.Entities;
 using Volo.Abp.Domain.Repositories;
 
@@ -24,13 +26,15 @@ public class BookAppService :
     IBookAppService //implement the IBookAppService
 {
     private readonly IAuthorRepository _authorRepository;
-
+    private readonly IDistributedCache<BookDto> _cache;
     public BookAppService(
         IRepository<Book, Guid> repository,
-        IAuthorRepository authorRepository)
+        IAuthorRepository authorRepository,
+        IDistributedCache<BookDto> cache)
         : base(repository)
     {
         _authorRepository = authorRepository;
+        _cache = cache;
         GetPolicyName = BookStorePermissions.Books.Default;
         GetListPolicyName = BookStorePermissions.Books.Default;
         CreatePolicyName = BookStorePermissions.Books.Create;
@@ -38,6 +42,12 @@ public class BookAppService :
         DeletePolicyName = BookStorePermissions.Books.Delete;
     }
 
+    public async Task<BookDto> GetFromCache(Guid bookId)
+    {
+        return await _cache.GetOrAddAsync( bookId.ToString(), //Cache key
+          async () => await GetAsync(bookId),() => new DistributedCacheEntryOptions {   AbsoluteExpiration = DateTimeOffset.Now.AddHours(1) }
+        );
+    }
     public override async Task<BookDto> GetAsync(Guid id)
     {
         //Get the IQueryable<Book> from the repository
@@ -63,6 +73,7 @@ public class BookAppService :
 
     public override async Task<PagedResultDto<BookDto>> GetListAsync(PagedAndSortedResultRequestDto input)
     {
+
         //Get the IQueryable<Book> from the repository
         var queryable = await Repository.GetQueryableAsync();
 

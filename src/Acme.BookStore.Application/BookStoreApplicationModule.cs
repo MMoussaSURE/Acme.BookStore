@@ -8,6 +8,7 @@ using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
+using Volo.Abp.Caching.StackExchangeRedis;
 
 
 namespace Acme.BookStore;
@@ -24,7 +25,7 @@ namespace Acme.BookStore;
     )]
 [DependsOn(typeof(AbpLocalizationModule))]
 [DependsOn(typeof(AbpBackgroundJobsModule))]
-
+[DependsOn(typeof(AbpCachingStackExchangeRedisModule))]
     public class BookStoreApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
