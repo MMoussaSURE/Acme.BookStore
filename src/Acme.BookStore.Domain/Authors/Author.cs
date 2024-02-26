@@ -10,6 +10,8 @@ public class Author : FullAuditedAggregateRoot<Guid>
     public string Name { get; private set; }
     public DateTime BirthDate { get; set; }
     public string ShortBio { get; set; }
+    public string ImagePath { get; set; }
+
 
     private Author()
     {
@@ -20,12 +22,14 @@ public class Author : FullAuditedAggregateRoot<Guid>
         Guid id,
         string name,
         DateTime birthDate,
-        string? shortBio = null)
+        string? shortBio = null,
+        string? imagePath = null)
         : base(id)
     {
         SetName(name);
         BirthDate = birthDate;
         ShortBio = shortBio;
+        ImagePath = imagePath;
     }
 
     internal Author ChangeName(string name)

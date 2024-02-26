@@ -15,7 +15,7 @@ public class AuthorManager : DomainService
         _authorRepository = authorRepository;
     }
 
-    public async Task<Author> CreateAsync( string name,DateTime birthDate, string? shortBio = null)
+    public async Task<Author> CreateAsync( string name,DateTime birthDate, string? shortBio = null,string? imagePath=null)
     {
         Check.NotNullOrWhiteSpace(name, nameof(name));
 
@@ -23,7 +23,7 @@ public class AuthorManager : DomainService
         if (existingAuthor != null)
             throw new AuthorAlreadyExistsException(name);
 
-        return new Author( GuidGenerator.Create(), name, birthDate, shortBio );
+        return new Author( GuidGenerator.Create(), name, birthDate, shortBio, imagePath);
     }
 
     public async Task ChangeNameAsync( Author author, string newName)
