@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Acme.BookStore.Authors;
@@ -13,4 +14,5 @@ public class UpdateAuthorDto
     public DateTime BirthDate { get; set; }
 
     public string? ShortBio { get; set; }
+    public IFormFile? Image { get; set; }
 }

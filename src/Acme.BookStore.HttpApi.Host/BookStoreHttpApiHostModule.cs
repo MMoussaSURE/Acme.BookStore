@@ -34,6 +34,8 @@ using Volo.Abp.Auditing;
 using Hangfire;
 using Volo.Abp.BackgroundJobs.Hangfire;
 using Volo.Abp.Hangfire;
+using Acme.BookStore.Common;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Acme.BookStore;
 
@@ -49,7 +51,7 @@ namespace Acme.BookStore;
     typeof(AbpSwashbuckleModule)
 )]
 [DependsOn(typeof(AbpBackgroundJobsHangfireModule))]
-    public class BookStoreHttpApiHostModule : AbpModule
+public class BookStoreHttpApiHostModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
@@ -90,6 +92,16 @@ namespace Acme.BookStore;
             options.IsEnabledForGetRequests = true;
         });
         ConfigureHangfire(context, configuration);
+        ConfigureOptions(hostingEnvironment, configuration);
+    }
+
+    private void ConfigureOptions(IWebHostEnvironment hostEnvironment, IConfiguration configuration)
+    {
+        Configure<ImageSettings>(options =>
+        {
+            options.RootImagePath = Directory.GetDirectories(hostEnvironment.WebRootPath).Where(c => c.EndsWith("images")).FirstOrDefault() ?? "images";
+            options.AuthorImagesFolder = configuration.GetValue<string>("ImageSettings:AuthorImagesFolder");
+        });
     }
     private void ConfigureHangfire(ServiceConfigurationContext context, IConfiguration configuration)
     {

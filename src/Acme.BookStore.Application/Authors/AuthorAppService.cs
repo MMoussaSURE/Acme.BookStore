@@ -4,8 +4,13 @@ using System.Linq;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using Acme.BookStore.BackgroundJob;
+using Acme.BookStore.Common;
 using Acme.BookStore.Permissions;
+using Acme.BookStore.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.BackgroundJobs;
 using Volo.Abp.Domain.Repositories;
@@ -18,57 +23,65 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
     private readonly IAuthorRepository _authorRepository;
     private readonly AuthorManager _authorManager;
     private readonly IBackgroundJobManager _backgroundJobManager;
-    public AuthorAppService(IBackgroundJobManager backgroundJobManager ,IAuthorRepository authorRepository,AuthorManager authorManager)
+    private readonly IImageService _imageService;
+    private readonly ImageSettings _imageSettings;
+    public AuthorAppService(IOptions<ImageSettings> imageSettings, IImageService imageService, IBackgroundJobManager backgroundJobManager, IAuthorRepository authorRepository, AuthorManager authorManager)
     {
         _authorRepository = authorRepository;
         _authorManager = authorManager;
         _backgroundJobManager = backgroundJobManager;
+        _imageService = imageService;
+        _imageSettings = imageSettings.Value;
     }
 
     public async Task<AuthorDto> GetAsync(Guid id)
     {
         var author = await _authorRepository.GetAsync(id);
-        await _backgroundJobManager.EnqueueAsync(new EmailSendingArgs{ EmailAddress = "mmoussa@sure.com.sa",Subject = "You've successfully get your data!", Body = "..." },priority:BackgroundJobPriority.High,delay:TimeSpan.FromSeconds(1));
+        await _backgroundJobManager.EnqueueAsync(new EmailSendingArgs { EmailAddress = "mmoussa@sure.com.sa", Subject = "You've successfully get your data!", Body = "..." }, priority: BackgroundJobPriority.High, delay: TimeSpan.FromSeconds(1));
         return ObjectMapper.Map<Author, AuthorDto>(author);
     }
     public async Task<PagedResultDto<AuthorDto>> GetListAsync(GetAuthorListDto input)
     {
         if (input.Sorting.IsNullOrWhiteSpace())
             input.Sorting = nameof(Author.Name);
-        
 
-        var authors = await _authorRepository.GetListAsync( input.SkipCount, input.MaxResultCount,input.Sorting, input.Filter);
+
+        var authors = await _authorRepository.GetListAsync(input.SkipCount, input.MaxResultCount, input.Sorting, input.Filter);
 
         var totalCount = input.Filter == null
             ? await _authorRepository.CountAsync()
-            : await _authorRepository.CountAsync( author => author.Name.Contains(input.Filter));
+            : await _authorRepository.CountAsync(author => author.Name.Contains(input.Filter));
 
-        return new PagedResultDto<AuthorDto>( totalCount, ObjectMapper.Map<List<Author>, List<AuthorDto>>(authors) );
+        return new PagedResultDto<AuthorDto>(totalCount, ObjectMapper.Map<List<Author>, List<AuthorDto>>(authors));
     }
 
     [Authorize(BookStorePermissions.Authors.Create)]
-    public async Task<AuthorDto> CreateAsync(CreateAuthorDto input)
+    public async Task<AuthorDto> CreateAsync([FromForm] CreateAuthorDto input)
     {
-        var author = await _authorManager.CreateAsync( input.Name, input.BirthDate, input.ShortBio );
-
+        var (isImageUploaded, filepath) = await _imageService.UploadImage(input.Image, _imageSettings.RootImagePath, _imageSettings.AuthorImagesFolder, null);
+        var author = await _authorManager.CreateAsync(input.Name, input.BirthDate, input.ShortBio, isImageUploaded ? filepath : null);
         await _authorRepository.InsertAsync(author);
 
         return ObjectMapper.Map<Author, AuthorDto>(author);
     }
 
     [Authorize(BookStorePermissions.Authors.Edit)]
-    public async Task UpdateAsync(Guid id, UpdateAuthorDto input)
+    public async Task UpdateAsync(Guid id, [FromForm] UpdateAuthorDto input)
     {
         var author = await _authorRepository.GetAsync(id);
 
         if (author.Name != input.Name)
-        {
             await _authorManager.ChangeNameAsync(author, input.Name);
+        
+        if (input.Image != null && input.Image.Length > 0 )
+        {
+            var (isImageUploaded, filepath) = await _imageService.UploadImage(input.Image, _imageSettings.RootImagePath, _imageSettings.AuthorImagesFolder, null);
+            if (isImageUploaded)
+                author.ImagePath = filepath;
         }
-
+        
         author.BirthDate = input.BirthDate;
         author.ShortBio = input.ShortBio;
-
         await _authorRepository.UpdateAsync(author);
     }
     [Authorize(BookStorePermissions.Authors.Delete)]
