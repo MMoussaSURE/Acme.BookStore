@@ -2,6 +2,9 @@
 using Acme.BookStore.Books;
 using Acme.BookStore.Clients;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using System.Linq.Expressions;
+using System;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.Data;
@@ -106,6 +109,7 @@ public class BookStoreDbContext :
             b.Property(x => x.Name).IsRequired().HasMaxLength(128);
             // ADD THE MAPPING FOR THE RELATION
             b.HasOne<Author>().WithMany().HasForeignKey(x => x.AuthorId).IsRequired();
+            //b.HasAbpQueryFilter(c => c.IsActive);
         });
         #endregion
 
@@ -141,4 +145,34 @@ public class BookStoreDbContext :
         });
         #endregion
     }
+
+
+    //protected bool IsActiveFilterEnabled => DataFilter?.IsEnabled<IIsActive>() ?? false;
+
+    //protected override bool ShouldFilterEntity<TEntity>(IMutableEntityType entityType)
+    //{
+    //    if (typeof(IIsActive).IsAssignableFrom(typeof(TEntity)))
+    //    {
+    //        return true;
+    //    }
+
+    //    return base.ShouldFilterEntity<TEntity>(entityType);
+    //}
+
+    //protected override Expression<Func<TEntity, bool>> CreateFilterExpression<TEntity>()
+    //{
+    //    var expression = base.CreateFilterExpression<TEntity>();
+
+    //    if (typeof(IIsActive).IsAssignableFrom(typeof(TEntity)))
+    //    {
+    //        Expression<Func<TEntity, bool>> isActiveFilter =
+    //            e => !IsActiveFilterEnabled || EF.Property<bool>(e, "IsActive");
+    //        expression = expression == null
+    //            ? isActiveFilter
+    //            : QueryFilterExpressionHelper.CombineExpressions(expression, isActiveFilter);
+    //    }
+
+    //    return expression;
+    //}
+
 }
