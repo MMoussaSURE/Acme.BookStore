@@ -9,6 +9,9 @@ using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.Caching.StackExchangeRedis;
+using Volo.Abp.Data;
+using Volo.Abp;
+using StackExchange.Redis;
 
 
 namespace Acme.BookStore;
@@ -26,7 +29,7 @@ namespace Acme.BookStore;
 [DependsOn(typeof(AbpLocalizationModule))]
 [DependsOn(typeof(AbpBackgroundJobsModule))]
 [DependsOn(typeof(AbpCachingStackExchangeRedisModule))]
-    public class BookStoreApplicationModule : AbpModule
+public class BookStoreApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
@@ -38,6 +41,13 @@ namespace Acme.BookStore;
         {
             options.DefaultTimeout = 864000; //10 days (as seconds)
         });
+
+        //The code below disables the ISoftDelete filter by default which will cause to include deleted entities when you query the database unless you explicitly enable the filter:
+        //Configure<AbpDataFilterOptions>(options =>
+        //{
+        //    options.DefaultStates[typeof(ISoftDelete)] = new DataFilterState(isEnabled: false);
+        //});
+
     }
 
 

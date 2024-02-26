@@ -11,8 +11,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Volo.Abp;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.BackgroundJobs;
+using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
 
 namespace Acme.BookStore.Authors;
@@ -25,13 +27,15 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
     private readonly IBackgroundJobManager _backgroundJobManager;
     private readonly IImageService _imageService;
     private readonly ImageSettings _imageSettings;
-    public AuthorAppService(IOptions<ImageSettings> imageSettings, IImageService imageService, IBackgroundJobManager backgroundJobManager, IAuthorRepository authorRepository, AuthorManager authorManager)
+    private readonly IDataFilter<ISoftDelete> _dataFilter;
+    public AuthorAppService(IDataFilter<ISoftDelete> dataFilter,IOptions<ImageSettings> imageSettings, IImageService imageService, IBackgroundJobManager backgroundJobManager, IAuthorRepository authorRepository, AuthorManager authorManager)
     {
         _authorRepository = authorRepository;
         _authorManager = authorManager;
         _backgroundJobManager = backgroundJobManager;
         _imageService = imageService;
         _imageSettings = imageSettings.Value;
+        _dataFilter = dataFilter;
     }
 
     public async Task<AuthorDto> GetAsync(Guid id)
@@ -42,17 +46,20 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
     }
     public async Task<PagedResultDto<AuthorDto>> GetListAsync(GetAuthorListDto input)
     {
-        if (input.Sorting.IsNullOrWhiteSpace())
-            input.Sorting = nameof(Author.Name);
+        //using (_dataFilter.Disable())
+        //{
+            if (input.Sorting.IsNullOrWhiteSpace())
+                input.Sorting = nameof(Author.Name);
 
 
-        var authors = await _authorRepository.GetListAsync(input.SkipCount, input.MaxResultCount, input.Sorting, input.Filter);
+            var authors = await _authorRepository.GetListAsync(input.SkipCount, input.MaxResultCount, input.Sorting, input.Filter);
 
-        var totalCount = input.Filter == null
-            ? await _authorRepository.CountAsync()
-            : await _authorRepository.CountAsync(author => author.Name.Contains(input.Filter));
+            var totalCount = input.Filter == null
+                ? await _authorRepository.CountAsync()
+                : await _authorRepository.CountAsync(author => author.Name.Contains(input.Filter));
 
-        return new PagedResultDto<AuthorDto>(totalCount, ObjectMapper.Map<List<Author>, List<AuthorDto>>(authors));
+            return new PagedResultDto<AuthorDto>(totalCount, ObjectMapper.Map<List<Author>, List<AuthorDto>>(authors));
+        //}
     }
 
     [Authorize(BookStorePermissions.Authors.Create)]
