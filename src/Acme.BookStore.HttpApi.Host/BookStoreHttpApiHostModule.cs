@@ -36,6 +36,7 @@ using Volo.Abp.BackgroundJobs.Hangfire;
 using Volo.Abp.Hangfire;
 using Acme.BookStore.Common;
 using Microsoft.AspNetCore.Hosting;
+using Acme.BookStore.CustomMiddlewares;
 
 namespace Acme.BookStore;
 
@@ -229,7 +230,7 @@ public class BookStoreHttpApiHostModule : AbpModule
         {
             app.UseErrorPage();
         }
-
+        app.UseMiddleware<CustomExampleMiddleware>();
         app.UseCorrelationId();
         app.UseStaticFiles();
         app.UseRouting();
