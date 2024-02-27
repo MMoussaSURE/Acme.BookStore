@@ -28,7 +28,7 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
     private readonly IImageService _imageService;
     private readonly ImageSettings _imageSettings;
     private readonly IDataFilter<ISoftDelete> _dataFilter;
-    public AuthorAppService(IDataFilter<ISoftDelete> dataFilter,IOptions<ImageSettings> imageSettings, IImageService imageService, IBackgroundJobManager backgroundJobManager, IAuthorRepository authorRepository, AuthorManager authorManager)
+    public AuthorAppService(IDataFilter<ISoftDelete> dataFilter, IOptions<ImageSettings> imageSettings, IImageService imageService, IBackgroundJobManager backgroundJobManager, IAuthorRepository authorRepository, AuthorManager authorManager)
     {
         _authorRepository = authorRepository;
         _authorManager = authorManager;
@@ -48,24 +48,24 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
     {
         //using (_dataFilter.Disable())
         //{
-            if (input.Sorting.IsNullOrWhiteSpace())
-                input.Sorting = nameof(Author.Name);
+        if (input.Sorting.IsNullOrWhiteSpace())
+            input.Sorting = nameof(Author.Name);
 
 
-            var authors = await _authorRepository.GetListAsync(input.SkipCount, input.MaxResultCount, input.Sorting, input.Filter);
+        var authors = await _authorRepository.GetListAsync(input.SkipCount, input.MaxResultCount, input.Sorting, input.Filter);
 
-            var totalCount = input.Filter == null
-                ? await _authorRepository.CountAsync()
-                : await _authorRepository.CountAsync(author => author.Name.Contains(input.Filter));
+        var totalCount = input.Filter == null
+            ? await _authorRepository.CountAsync()
+            : await _authorRepository.CountAsync(author => author.Name.Contains(input.Filter));
 
-            return new PagedResultDto<AuthorDto>(totalCount, ObjectMapper.Map<List<Author>, List<AuthorDto>>(authors));
+        return new PagedResultDto<AuthorDto>(totalCount, ObjectMapper.Map<List<Author>, List<AuthorDto>>(authors));
         //}
     }
 
     [Authorize(BookStorePermissions.Authors.Create)]
-    public async Task<AuthorDto> CreateAsync([FromForm] CreateAuthorDto input)
+    public async Task<AuthorDto> CreateAsync(CreateAuthorDto input)
     {
-        var (isImageUploaded, filepath) = await _imageService.UploadImage(input.Image, _imageSettings.RootImagePath, _imageSettings.AuthorImagesFolder, null);
+        var (isImageUploaded, filepath) = await _imageService.UploadImage(input.Image, _imageSettings.RootImagePath, _imageSettings.AuthorImagesFolder);
         var author = await _authorManager.CreateAsync(input.Name, input.BirthDate, input.ShortBio, isImageUploaded ? filepath : null);
         await _authorRepository.InsertAsync(author);
 
@@ -73,7 +73,7 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
     }
 
     [Authorize(BookStorePermissions.Authors.Edit)]
-    public async Task UpdateAsync(Guid id, [FromForm] UpdateAuthorDto input)
+    public async Task UpdateAsync(Guid id, UpdateAuthorDto input)
     {
         var author = await _authorRepository.GetAsync(id);
 
@@ -82,7 +82,7 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
         
         if (input.Image != null && input.Image.Length > 0 )
         {
-            var (isImageUploaded, filepath) = await _imageService.UploadImage(input.Image, _imageSettings.RootImagePath, _imageSettings.AuthorImagesFolder, null);
+            var (isImageUploaded, filepath) = await _imageService.UploadImage(input.Image, _imageSettings.RootImagePath, _imageSettings.AuthorImagesFolder);
             if (isImageUploaded)
                 author.ImagePath = filepath;
         }

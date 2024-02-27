@@ -6,6 +6,6 @@ namespace Acme.BookStore.Services
 {
     public interface IImageService : ISingletonDependency
     {
-        Task<(bool isImageUploaded, string? filepath)> UploadImage(IFormFile? imageFile,string rootPath,string folder, string? fileName);
+        Task<(bool isImageUploaded, string? filepath)> UploadImage(string base64Data, string rootPath, string folder);
     }
 }
