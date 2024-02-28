@@ -12,6 +12,7 @@ using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Acme.BookStore.EntityFrameworkCore;
 
@@ -45,10 +46,19 @@ public class BookStoreEntityFrameworkCoreModule : AbpModule
 
         Configure<AbpDbContextOptions>(options =>
         {
-                /* The main point to change your DBMS.
-                 * See also BookStoreMigrationsDbContextFactory for EF Core tooling. */
+            /* The main point to change your DBMS.
+             * See also BookStoreMigrationsDbContextFactory for EF Core tooling. */
             options.UseSqlServer();
         });
+
+        //Configure<AbpDbContextOptions>(options =>
+        //{
+        //    options.UseSqlServer(optionsBuilder =>
+        //    {
+        //        optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+        //    });
+        //});
+
 
     }
 }

@@ -9,5 +9,10 @@ public static class BookStoreDomainErrorCodes
 
     #region Clients
     public const string ClientAlreadyExists = "BookStore:00002";
+    public const string ClientNotExist = "BookStore:000020";
+    #endregion
+
+    #region Products
+    public const string ProductNotExist = "BookStore:00003";
     #endregion
 }
