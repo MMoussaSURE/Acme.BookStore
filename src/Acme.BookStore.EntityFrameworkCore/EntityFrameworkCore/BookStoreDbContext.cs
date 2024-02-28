@@ -20,6 +20,8 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Acme.BookStore.ValueObjects;
+using Acme.BookStore.Orders;
+using Acme.BookStore.Products;
 
 namespace Acme.BookStore.EntityFrameworkCore;
 
@@ -72,6 +74,16 @@ public class BookStoreDbContext :
     #region Clients
     public DbSet<Client> Clients { get; set; }
     #endregion
+
+    #region Orders
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderLine> OrderLines { get; set; }
+    #endregion
+
+    #region Products
+    public DbSet<Product> Products { get; set; }
+    #endregion
+
 
     public BookStoreDbContext(DbContextOptions<BookStoreDbContext> options)
         : base(options)
@@ -150,6 +162,44 @@ public class BookStoreDbContext :
         });
         #endregion
 
+        #region Order
+        builder.Entity<Order>(b =>
+        {
+            b.ToTable(BookStoreConsts.DbTablePrefix + "Orders",
+                BookStoreConsts.DbSchema);
+
+            b.ConfigureByConvention();
+
+            //Define the relation
+            b.HasMany(x => x.Lines)
+                .WithOne(x => x.Order)
+                .HasForeignKey(x => x.OrderId)
+                .IsRequired();
+        });
+
+        builder.Entity<OrderLine>(b =>
+        {
+            b.ToTable(BookStoreConsts.DbTablePrefix + "OrderLines",
+              BookStoreConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+        #endregion
+
+        #region Products
+        builder.Entity<Product>(b =>
+        {
+            b.ToTable(BookStoreConsts.DbTablePrefix + "Products",
+                BookStoreConsts.DbSchema);
+
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name)
+                .IsRequired()
+                .HasMaxLength(AuthorConsts.MaxNameLength);
+
+            b.HasIndex(x => x.Name);
+        });
+        #endregion
 
 
     }
