@@ -19,6 +19,7 @@ using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using Acme.BookStore.ValueObjects;
 
 namespace Acme.BookStore.EntityFrameworkCore;
 
@@ -142,8 +143,15 @@ public class BookStoreDbContext :
                 .HasMaxLength(AuthorConsts.MaxNameLength);
 
             b.HasIndex(x => x.Name);
+
+            b.ComplexProperty(x => x.HomeAddress);     // Mapping a Complex Type
+            b.ComplexProperty(x => x.BusinessAddress); // Mapping another Complex Type
+
         });
         #endregion
+
+
+
     }
 
 

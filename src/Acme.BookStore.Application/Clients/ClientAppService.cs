@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Acme.BookStore.Permissions;
+using Acme.BookStore.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
@@ -44,6 +46,9 @@ namespace Acme.BookStore.Clients
         public async Task<ClientDto> CreateAsync(CreateClientDto input)
         {
             var client = await _clientManager.CreateAsync(input.Name, input.Type);
+            client.HomeAddress = new Address(input.HomeAddress.Street, input.HomeAddress.City, input.HomeAddress.State, input.HomeAddress.Country, input.HomeAddress.ZipCode);
+            client.BusinessAddress = new Address(input.BusinessAddress.Street, input.BusinessAddress.City, input.BusinessAddress.State, input.BusinessAddress.Country, input.BusinessAddress.ZipCode);
+
 
             await _clientRepository.InsertAsync(client);
 

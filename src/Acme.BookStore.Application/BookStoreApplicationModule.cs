@@ -12,6 +12,8 @@ using Volo.Abp.Caching.StackExchangeRedis;
 using Volo.Abp.Data;
 using Volo.Abp;
 using StackExchange.Redis;
+using Microsoft.Extensions.DependencyInjection;
+using Acme.BookStore.Clients;
 
 
 namespace Acme.BookStore;
@@ -33,6 +35,7 @@ public class BookStoreApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
+     //   context.Services.AddScoped<IClientAppService, ClientAppService>();
         Configure<AbpAutoMapperOptions>(options =>
         {
             options.AddMaps<BookStoreApplicationModule>();
