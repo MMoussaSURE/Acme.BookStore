@@ -10,6 +10,7 @@ using Volo.Abp.Domain.Repositories;
 
 namespace Acme.BookStore.Clients
 {
+    [Authorize(Roles = "admin ,Default")]
     [Authorize(BookStorePermissions.Clients.Default)]
 
     public class ClientAppService : BookStoreAppService, IClientAppService

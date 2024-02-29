@@ -14,6 +14,7 @@ using Volo.Abp.Identity;
 
 namespace Acme.BookStore.Orders
 {
+    [Authorize(Roles = "admin ,Default")]
     [Authorize(BookStorePermissions.Orders.Default)]
     public class OrderAppService(IRepository<Order, Guid> orderRepository, OrderManager orderManager, IdentityUserAppService identityUserAppService) : BookStoreAppService, IOrderAppService
     {

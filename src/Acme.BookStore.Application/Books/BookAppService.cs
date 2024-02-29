@@ -15,7 +15,9 @@ using Volo.Abp.Domain.Repositories;
 
 namespace Acme.BookStore.Books;
 
+[Authorize(Roles = "admin ,Default")]
 [Authorize(BookStorePermissions.Books.Default)]
+
 public class BookAppService :
     CrudAppService<
         Book, //The Book entity
