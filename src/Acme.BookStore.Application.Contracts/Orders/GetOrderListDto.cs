@@ -7,6 +7,6 @@ namespace Acme.BookStore.Orders
 {
     public class GetOrderListDto : PagedResultRequestDto
     {
-        public Guid ClientId { get; set; }
+        public Guid? ClientId { get; set; }
     }
 }
