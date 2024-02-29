@@ -9,20 +9,24 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Volo.Abp.Application.Dtos;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.Identity;
 
 
 namespace Acme.BookStore.Orders
 {
     [Authorize(BookStorePermissions.Orders.Default)]
-    public class OrderAppService(IRepository<Order, Guid> orderRepository, OrderManager orderManager) : BookStoreAppService, IOrderAppService
+    public class OrderAppService(IRepository<Order, Guid> orderRepository, OrderManager orderManager, IdentityUserAppService identityUserAppService) : BookStoreAppService, IOrderAppService
     {
 
         private readonly OrderManager _orderManager = orderManager;
         private readonly IRepository<Order, Guid> _orderRepository = orderRepository;
-
+        private readonly IdentityUserAppService _identityUserAppService = identityUserAppService;
 
         public async Task<PagedResultDto<OrderDto>> GetListAsync(GetOrderListDto input)
         {
+            var user = CurrentUser;
+            var fullUser = await _identityUserAppService.FindByEmailAsync(user.Email);
+
             var totalCount = !input.ClientId.ToString().IsNullOrWhiteSpace()
                            ? await _orderRepository.CountAsync(x => x.ClientId == input.ClientId)
                            : await _orderRepository.CountAsync();

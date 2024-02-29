@@ -13,6 +13,7 @@ using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Acme.BookStore.Identity;
 
 namespace Acme.BookStore.EntityFrameworkCore;
 
@@ -43,6 +44,10 @@ public class BookStoreEntityFrameworkCoreModule : AbpModule
                  * default repositories only for aggregate roots */
             options.AddDefaultRepositories(includeAllEntities: true);
         });
+
+        // to use override identity repositories
+        context.Services.AddDefaultRepository(typeof(Volo.Abp.Identity.IdentityUser), typeof(MyEfCoreIdentityUserRepository),replaceExisting: true);
+        context.Services.AddDefaultRepository(typeof(Volo.Abp.Identity.IdentityUser), typeof(MyEfCoreIdentityUserRepository), replaceExisting: true);
 
         Configure<AbpDbContextOptions>(options =>
         {
