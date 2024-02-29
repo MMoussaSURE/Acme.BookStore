@@ -15,10 +15,8 @@ namespace Acme.BookStore.Identity
         }
         public override async Task<IdentityUser> FindByNormalizedEmailAsync(string normalizedEmail, bool includeDetails = true, CancellationToken cancellationToken = default)
         {
-            var identityUser = await base.FindByNormalizedEmailAsync(normalizedEmail, includeDetails, cancellationToken);
-            return identityUser is null
-                ? throw new AbpIdentityResultException(new Microsoft.AspNetCore.Identity.IdentityResult () )
-                : identityUser;
+            return await base.FindByNormalizedEmailAsync(normalizedEmail, includeDetails, cancellationToken);
         }
+
     }
 }
