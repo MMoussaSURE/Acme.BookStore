@@ -1,4 +1,6 @@
 ﻿using Acme.BookStore.Clients;
+using Acme.BookStore.Permissions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,6 +13,7 @@ using Volo.Abp.Domain.Repositories;
 
 namespace Acme.BookStore.Orders
 {
+    [Authorize(BookStorePermissions.Orders.Default)]
     public class OrderAppService(IRepository<Order, Guid> orderRepository, OrderManager orderManager) : BookStoreAppService, IOrderAppService
     {
 
@@ -23,6 +26,7 @@ namespace Acme.BookStore.Orders
             var totalCount = !input.ClientId.ToString().IsNullOrWhiteSpace()
                            ? await _orderRepository.CountAsync(x => x.ClientId == input.ClientId)
                            : await _orderRepository.CountAsync();
+
             Expression<Func<Order, object>>[] propertySelectors = { p => p.Lines };
 
             var queryable = await _orderRepository.GetQueryableAsync();
