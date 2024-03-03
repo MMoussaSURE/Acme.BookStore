@@ -16,11 +16,13 @@ using Volo.Abp.Application.Dtos;
 using Volo.Abp.BackgroundJobs;
 using Volo.Abp.Data;
 using Volo.Abp.Domain.Repositories;
+using Volo.Abp.PermissionManagement;
 
 namespace Acme.BookStore.Authors;
 
 [Authorize(Roles = "admin ,Default")]
 [Authorize(BookStorePermissions.Authors.Default)]
+
 public class AuthorAppService : BookStoreAppService, IAuthorAppService
 {
     private readonly IAuthorRepository _authorRepository;
@@ -29,7 +31,8 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
     private readonly IImageService _imageService;
     private readonly ImageSettings _imageSettings;
     private readonly IDataFilter<ISoftDelete> _dataFilter;
-    public AuthorAppService(IDataFilter<ISoftDelete> dataFilter, IOptions<ImageSettings> imageSettings, IImageService imageService, IBackgroundJobManager backgroundJobManager, IAuthorRepository authorRepository, AuthorManager authorManager)
+    private readonly IPermissionGrantRepository _permissionGrantRepository;
+    public AuthorAppService(IPermissionGrantRepository permissionGrantRepository,IDataFilter<ISoftDelete> dataFilter, IOptions<ImageSettings> imageSettings, IImageService imageService, IBackgroundJobManager backgroundJobManager, IAuthorRepository authorRepository, AuthorManager authorManager)
     {
         _authorRepository = authorRepository;
         _authorManager = authorManager;
@@ -37,6 +40,7 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
         _imageService = imageService;
         _imageSettings = imageSettings.Value;
         _dataFilter = dataFilter;
+        _permissionGrantRepository = permissionGrantRepository; 
     }
 
     public async Task<AuthorDto> GetAsync(Guid id)
@@ -45,6 +49,8 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
         await _backgroundJobManager.EnqueueAsync(new EmailSendingArgs { EmailAddress = "mmoussa@sure.com.sa", Subject = "You've successfully get your data!", Body = "..." }, priority: BackgroundJobPriority.High, delay: TimeSpan.FromSeconds(1));
         return ObjectMapper.Map<Author, AuthorDto>(author);
     }
+
+
     public async Task<PagedResultDto<AuthorDto>> GetListAsync(GetAuthorListDto input)
     {
         //using (_dataFilter.Disable())

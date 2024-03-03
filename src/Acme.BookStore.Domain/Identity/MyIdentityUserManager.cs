@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Volo.Abp.Caching;
 using Volo.Abp.DependencyInjection;
+using Volo.Abp.Domain.Repositories;
 using Volo.Abp.EventBus.Distributed;
 using Volo.Abp.Identity;
 using Volo.Abp.Security.Claims;
@@ -24,7 +25,21 @@ namespace Acme.BookStore.Identity
         {
            
         }
+        public override async Task<IdentityResult> AddDefaultRolesAsync(IdentityUser user)
+        {
+            await UserRepository.EnsureCollectionLoadedAsync(user, u => u.Roles, CancellationToken);
 
+            foreach (var role in await RoleRepository.GetDefaultOnesAsync(cancellationToken: CancellationToken))
+            {
+                if (!user.IsInRole(role.Id))
+                {
+                    user.AddRole(role.Id);
+                }
+            }
+
+            return await UpdateUserAsync(user);
+          //  return await base.AddDefaultRolesAsync(user);
+        }
         public override async Task<IdentityUser?> FindByEmailAsync(string email)
         {
             return await base.FindByEmailAsync(email);

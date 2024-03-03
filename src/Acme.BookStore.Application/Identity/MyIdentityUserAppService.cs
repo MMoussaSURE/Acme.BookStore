@@ -13,7 +13,7 @@ namespace Acme.BookStore.Identity
     {
         public MyIdentityUserAppService(IdentityUserManager userManager, IIdentityUserRepository userRepository, IIdentityRoleRepository roleRepository, IOptions<IdentityOptions> identityOptions) : base(userManager, userRepository, roleRepository, identityOptions)
         {
-        }
+        }       
         public override async Task<IdentityUserDto> FindByEmailAsync(string email)
         {
             return await base.FindByEmailAsync(email);
