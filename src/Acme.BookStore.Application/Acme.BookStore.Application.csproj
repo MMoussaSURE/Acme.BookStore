@@ -30,4 +30,8 @@
 	<PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="8.1.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Accounts\" />
+  </ItemGroup>
+
 </Project>

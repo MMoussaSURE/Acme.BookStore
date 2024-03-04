@@ -15,7 +15,7 @@ using Volo.Abp.PermissionManagement;
 namespace Acme.BookStore.Accounts
 {
     [Dependency(ReplaceServices = true)]
-    [ExposeServices(typeof(IAccountAppService), typeof(AccountAppService), typeof(MyAccountAppService))]
+    [ExposeServices(typeof(IAccountAppService), typeof(AccountAppService), typeof(MyAccountAppService) , IncludeSelf =true)]
     public class MyAccountAppService : AccountAppService
     {
 
