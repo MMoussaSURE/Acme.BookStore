@@ -37,6 +37,7 @@ using Volo.Abp.Hangfire;
 using Acme.BookStore.Common;
 using Microsoft.AspNetCore.Hosting;
 using Acme.BookStore.CustomMiddlewares;
+using Volo.Abp.AspNetCore.SignalR;
 
 namespace Acme.BookStore;
 
@@ -52,7 +53,8 @@ namespace Acme.BookStore;
     typeof(AbpSwashbuckleModule)
 )]
 [DependsOn(typeof(AbpBackgroundJobsHangfireModule))]
-public class BookStoreHttpApiHostModule : AbpModule
+[DependsOn(typeof(AbpAspNetCoreSignalRModule))]
+    public class BookStoreHttpApiHostModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
