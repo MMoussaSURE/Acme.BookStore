@@ -14,6 +14,10 @@ using Volo.Abp;
 using StackExchange.Redis;
 using Microsoft.Extensions.DependencyInjection;
 using Acme.BookStore.Clients;
+using Volo.Abp.BackgroundWorkers.Hangfire;
+using Volo.Abp.BackgroundWorkers;
+using Acme.BookStore.BackgroundJob;
+using System.Threading.Tasks;
 
 
 namespace Acme.BookStore;
@@ -31,7 +35,8 @@ namespace Acme.BookStore;
 [DependsOn(typeof(AbpLocalizationModule))]
 [DependsOn(typeof(AbpBackgroundJobsModule))]
 [DependsOn(typeof(AbpCachingStackExchangeRedisModule))]
-public class BookStoreApplicationModule : AbpModule
+[DependsOn(typeof(AbpBackgroundWorkersHangfireModule))]
+    public class BookStoreApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
@@ -52,6 +57,12 @@ public class BookStoreApplicationModule : AbpModule
         //});
 
     }
+    public override async Task OnApplicationInitializationAsync(ApplicationInitializationContext context)
+    {
+        await context.AddBackgroundWorkerAsync<RemoveOrdersWorker>();
+        await base.OnApplicationInitializationAsync(context);
+    }
+  
 
 
 }

@@ -11,6 +11,7 @@ using Volo.Abp.DependencyInjection;
 using Volo.Abp.Identity;
 using Volo.Abp.ObjectExtending;
 using Volo.Abp.PermissionManagement;
+using IdentityUser = Volo.Abp.Identity.IdentityUser;
 
 namespace Acme.BookStore.Accounts
 {
