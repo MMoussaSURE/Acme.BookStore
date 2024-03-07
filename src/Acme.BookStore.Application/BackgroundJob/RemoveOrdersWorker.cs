@@ -32,8 +32,8 @@ namespace Acme.BookStore.BackgroundJob
             //{
                 Logger.LogInformation($"Executed RemoveOrdersWorker..! at {DateTime.Now}");
                 //var orderRepo = scope.ServiceProvider.GetService<IRepository<Order, Guid>>();
-                if (_orderRepository is not null) 
-                 await _orderRepository.DeleteAsync(c => c.CreationTime < DateTime.Now, true, cancellationToken);
+                //if (_orderRepository is not null) 
+                // await _orderRepository.DeleteAsync(c => c.CreationTime < DateTime.Now, true, cancellationToken);
             //}
             
         }
