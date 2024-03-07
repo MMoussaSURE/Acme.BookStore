@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Acme.BookStore.Authors;
 using Acme.BookStore.Permissions;
 using Acme.BookStore.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
@@ -29,17 +30,20 @@ namespace Acme.BookStore.Clients
         }
         public async Task<PagedResultDto<ClientDto>> GetListAsync(GetClientListDto input)
         {
-            if (input.Sorting.IsNullOrWhiteSpace())
-                input.Sorting = nameof(Client.Name);
+            using (_clientRepository.DisableTracking())
+            {
+                if (input.Sorting.IsNullOrWhiteSpace())
+                    input.Sorting = nameof(Client.Name);
 
 
-            var clients = await _clientRepository.GetListAsync(input.SkipCount, input.MaxResultCount, input.Sorting, input.Filter);
+                var clients = await _clientRepository.GetListAsync(input.SkipCount, input.MaxResultCount, input.Sorting, input.Filter);
 
-            var totalCount = input.Filter == null
-                ? await _clientRepository.CountAsync()
-                : await _clientRepository.CountAsync(author => author.Name.Contains(input.Filter));
+                var totalCount = input.Filter == null
+                    ? await _clientRepository.CountAsync()
+                    : await _clientRepository.CountAsync(author => author.Name.Contains(input.Filter));
 
-            return new PagedResultDto<ClientDto>(totalCount, ObjectMapper.Map<List<Client>, List<ClientDto>>(clients));
+                return new PagedResultDto<ClientDto>(totalCount, ObjectMapper.Map<List<Client>, List<ClientDto>>(clients));
+            }
         }
 
         [Authorize(BookStorePermissions.Clients.Create)]

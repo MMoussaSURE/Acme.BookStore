@@ -53,20 +53,23 @@ public class AuthorAppService : BookStoreAppService, IAuthorAppService
 
     public async Task<PagedResultDto<AuthorDto>> GetListAsync(GetAuthorListDto input)
     {
-        //using (_dataFilter.Disable())
-        //{
-        if (input.Sorting.IsNullOrWhiteSpace())
-            input.Sorting = nameof(Author.Name);
+        using (_authorRepository.DisableTracking())
+        {
+            //using (_dataFilter.Disable())
+            //{
+            if (input.Sorting.IsNullOrWhiteSpace())
+                input.Sorting = nameof(Author.Name);
 
 
-        var authors = await _authorRepository.GetListAsync(input.SkipCount, input.MaxResultCount, input.Sorting, input.Filter);
+            var authors = await _authorRepository.GetListAsync(input.SkipCount, input.MaxResultCount, input.Sorting, input.Filter);
 
-        var totalCount = input.Filter == null
-            ? await _authorRepository.CountAsync()
-            : await _authorRepository.CountAsync(author => author.Name.Contains(input.Filter));
+            var totalCount = input.Filter == null
+                ? await _authorRepository.CountAsync()
+                : await _authorRepository.CountAsync(author => author.Name.Contains(input.Filter));
 
-        return new PagedResultDto<AuthorDto>(totalCount, ObjectMapper.Map<List<Author>, List<AuthorDto>>(authors));
-        //}
+            return new PagedResultDto<AuthorDto>(totalCount, ObjectMapper.Map<List<Author>, List<AuthorDto>>(authors));
+            //}
+        }
     }
 
     [Authorize(BookStorePermissions.Authors.Create)]

@@ -25,27 +25,29 @@ namespace Acme.BookStore.Orders
 
         public async Task<PagedResultDto<OrderDto>> GetListAsync(GetOrderListDto input)
         {
-            var user = CurrentUser;
-            var fullUser = await _identityUserAppService.FindByEmailAsync(user.Email);
+            using (_orderRepository.DisableTracking())
+            {
+                var fullUser = await _identityUserAppService.FindByEmailAsync(CurrentUser.Email);
 
-            var totalCount = !input.ClientId.ToString().IsNullOrWhiteSpace()
-                           ? await _orderRepository.CountAsync(x => x.ClientId == input.ClientId)
-                           : await _orderRepository.CountAsync();
+                var totalCount = !input.ClientId.ToString().IsNullOrWhiteSpace()
+                               ? await _orderRepository.CountAsync(x => x.ClientId == input.ClientId)
+                               : await _orderRepository.CountAsync();
 
-            Expression<Func<Order, object>>[] propertySelectors = { p => p.Lines };
+                Expression<Func<Order, object>>[] propertySelectors = { p => p.Lines };
 
-            var queryable = await _orderRepository.GetQueryableAsync();
-            queryable = queryable.WhereIf(!input.ClientId.ToString().IsNullOrWhiteSpace(), c => c.ClientId == input.ClientId)
-                                 .Include(c => c.Client)
-                                 .Include(c => c.Lines).ThenInclude(l => l.Product)
-                                 .OrderBy(o => o.CreationTime)
-                                 .Skip(input.SkipCount)
-                                 .Take(input.MaxResultCount);
+                var queryable = await _orderRepository.GetQueryableAsync();
+                queryable = queryable.WhereIf(!input.ClientId.ToString().IsNullOrWhiteSpace(), c => c.ClientId == input.ClientId)
+                                     .Include(c => c.Client)
+                                     .Include(c => c.Lines).ThenInclude(l => l.Product)
+                                     .OrderBy(o => o.CreationTime)
+                                     .Skip(input.SkipCount)
+                                     .Take(input.MaxResultCount);
 
 
 
-            var orders = await AsyncExecuter.ToListAsync(queryable);
-            return new PagedResultDto<OrderDto>(totalCount, ObjectMapper.Map<List<Order>, List<OrderDto>>(orders));
+                var orders = await AsyncExecuter.ToListAsync(queryable);
+                return new PagedResultDto<OrderDto>(totalCount, ObjectMapper.Map<List<Order>, List<OrderDto>>(orders));
+            }
         }
 
         public async Task<OrderDto> GetAsync(Guid id)
