@@ -14,8 +14,8 @@ using Volo.Abp.Identity;
 
 namespace Acme.BookStore.Orders
 {
-    [Authorize(Roles = "admin ,Default")]
-    [Authorize(BookStorePermissions.Orders.Default)]
+    
+    
     public class OrderAppService(IRepository<Order, Guid> orderRepository, OrderManager orderManager, IdentityUserAppService identityUserAppService) : BookStoreAppService, IOrderAppService
     {
 
@@ -23,6 +23,8 @@ namespace Acme.BookStore.Orders
         private readonly IRepository<Order, Guid> _orderRepository = orderRepository;
         private readonly IdentityUserAppService _identityUserAppService = identityUserAppService;
 
+
+        [Authorize(Roles = "admin")]
         public async Task<PagedResultDto<OrderDto>> GetListAsync(GetOrderListDto input)
         {
             using (_orderRepository.DisableTracking())
@@ -56,7 +58,7 @@ namespace Acme.BookStore.Orders
             return ObjectMapper.Map<Order, OrderDto>(order);
         }
 
-
+        [Authorize(BookStorePermissions.Orders.Default)]
         public async Task<OrderDto> CreateAsync(CreateOrderDto input)
         {
             var order = await _orderManager.CreateAsync(input.ClientId, input.Lines.Select(c => new OrderLine { ProductId = c.ProductId, Count = c.Count }).ToList());
@@ -64,6 +66,8 @@ namespace Acme.BookStore.Orders
             return ObjectMapper.Map<Order, OrderDto>(order);
         }
 
+
+        [Authorize(Roles = "admin")]
         public async Task DeleteAsync(Guid id)
           => await _orderRepository.DeleteAsync(id);
 
