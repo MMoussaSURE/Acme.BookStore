@@ -16,10 +16,10 @@ namespace Acme.BookStore.BackgroundJob
     public class RemoveOrdersWorker : HangfireBackgroundWorkerBase
     {
         //private readonly ICachedServiceProvider _serviceProvider;
-        private readonly IRepository<Order, Guid> _orderRepository;
+        private readonly IOrderRepository _orderRepository;
 
        // public RemoveOrdersWorker(ICachedServiceProvider serviceProvider)
-        public RemoveOrdersWorker( IRepository<Order, Guid> orderRepository)
+        public RemoveOrdersWorker(IOrderRepository orderRepository)
         {
             RecurringJobId = nameof(RemoveOrdersWorker);
             CronExpression = Cron.Minutely();
