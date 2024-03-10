@@ -59,7 +59,8 @@ namespace Acme.BookStore;
     }
     public override async Task OnApplicationInitializationAsync(ApplicationInitializationContext context)
     {
-        await context.AddBackgroundWorkerAsync<RemoveOrdersWorker>();
+        //await context.AddBackgroundWorkerAsync<RemoveOrdersWorker>();
+       // await context.AddBackgroundWorkerAsync<SendEmailWorker>();
         await base.OnApplicationInitializationAsync(context);
     }
   
