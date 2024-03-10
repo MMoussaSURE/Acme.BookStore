@@ -14,6 +14,8 @@ using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Acme.BookStore.Identity;
+using Acme.BookStore.Orders;
+using Volo.Abp.EntityFrameworkCore.DependencyInjection;
 
 namespace Acme.BookStore.EntityFrameworkCore;
 
@@ -63,7 +65,13 @@ public class BookStoreEntityFrameworkCoreModule : AbpModule
         //        optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
         //    });
         //});
-
+        //Configure<AbpEntityOptions>(options =>
+        //{
+        //    options.Entity<Order>(orderOptions =>
+        //    {
+        //        orderOptions.DefaultWithDetailsFunc = query => query.Include(o => o.Lines).ThenInclude(p => p.Product);
+        //    });
+        //});
 
     }
 }
