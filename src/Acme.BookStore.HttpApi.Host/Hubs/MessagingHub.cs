@@ -18,10 +18,6 @@ namespace Acme.BookStore.Hubs
             _identityUserRepository = identityUserRepository;
             _lookupNormalizer = lookupNormalizer;
         }
-        public override Task OnConnectedAsync()
-        {
-            return base.OnConnectedAsync();
-        }
 
         public async Task SendMessage(string targetUserName, string message)
         {
@@ -29,11 +25,9 @@ namespace Acme.BookStore.Hubs
 
             message = $"{CurrentUser.UserName}: {message}";
 
-            if (targetUser is not null)
-                await Clients
-                    .User(targetUser.Id.ToString())
-                    .SendAsync("ReceiveMessage", message);
-
+            await Clients
+                .User(targetUser.Id.ToString())
+                .SendAsync("ReceiveMessage", message);
         }
     }
 }

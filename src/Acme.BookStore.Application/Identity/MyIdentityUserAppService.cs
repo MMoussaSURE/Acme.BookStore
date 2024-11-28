@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
+using Volo.Abp.Application.Dtos;
 using Volo.Abp.DependencyInjection;
 using Volo.Abp.Identity;
 
@@ -17,6 +18,10 @@ namespace Acme.BookStore.Identity
         public override async Task<IdentityUserDto> FindByEmailAsync(string email)
         {
             return await base.FindByEmailAsync(email);
+        }
+        public override Task<PagedResultDto<IdentityUserDto>> GetListAsync(GetIdentityUsersInput input)
+        {
+            return base.GetListAsync(input);
         }
     }
 }

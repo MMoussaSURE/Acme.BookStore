@@ -56,8 +56,8 @@
     "Permission:Orders": "Orders Management",
     "Permission:Orders.Create": "Creating new Orders",
     "Permission:Orders.Delete": "Deleting the Orders",
-    "Menu:Orders": "Orders"
-
+    "Menu:Orders": "Orders",
+    "Menu:chat": "chat"
 
 
   }
