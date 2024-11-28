@@ -30,6 +30,13 @@ public class BookStorePermissionDefinitionProvider : PermissionDefinitionProvide
         clientsPermission.AddChild(BookStorePermissions.Clients.Edit, L("Permission:Clients.Edit"));
         clientsPermission.AddChild(BookStorePermissions.Clients.Delete, L("Permission:Clients.Delete"));
         #endregion
+
+
+        #region Orders
+        var ordersPermission = bookStoreGroup.AddPermission(BookStorePermissions.Orders.Default, L("Permission:Orders"));
+        ordersPermission.AddChild(BookStorePermissions.Orders.Create, L("Permission:Orders.Create"));
+        ordersPermission.AddChild(BookStorePermissions.Orders.Delete, L("Permission:Orders.Delete"));
+        #endregion
     }
 
     private static LocalizableString L(string name)

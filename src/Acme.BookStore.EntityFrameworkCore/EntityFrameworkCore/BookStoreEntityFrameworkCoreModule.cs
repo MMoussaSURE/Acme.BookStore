@@ -12,6 +12,10 @@ using Volo.Abp.OpenIddict.EntityFrameworkCore;
 using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Acme.BookStore.Identity;
+using Acme.BookStore.Orders;
+using Volo.Abp.EntityFrameworkCore.DependencyInjection;
 
 namespace Acme.BookStore.EntityFrameworkCore;
 
@@ -43,12 +47,31 @@ public class BookStoreEntityFrameworkCoreModule : AbpModule
             options.AddDefaultRepositories(includeAllEntities: true);
         });
 
+        // to use override identity repositories
+        context.Services.AddDefaultRepository(typeof(Volo.Abp.Identity.IdentityUser), typeof(MyEfCoreIdentityUserRepository),replaceExisting: true);
+        context.Services.AddDefaultRepository(typeof(Volo.Abp.Identity.IdentityUser), typeof(MyEfCoreIdentityUserRepository), replaceExisting: true);
+
         Configure<AbpDbContextOptions>(options =>
         {
-                /* The main point to change your DBMS.
-                 * See also BookStoreMigrationsDbContextFactory for EF Core tooling. */
+            /* The main point to change your DBMS.
+             * See also BookStoreMigrationsDbContextFactory for EF Core tooling. */
             options.UseSqlServer();
         });
+
+        //Configure<AbpDbContextOptions>(options =>
+        //{
+        //    options.UseSqlServer(optionsBuilder =>
+        //    {
+        //        optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+        //    });
+        //});
+        //Configure<AbpEntityOptions>(options =>
+        //{
+        //    options.Entity<Order>(orderOptions =>
+        //    {
+        //        orderOptions.DefaultWithDetailsFunc = query => query.Include(o => o.Lines).ThenInclude(p => p.Product);
+        //    });
+        //});
 
     }
 }

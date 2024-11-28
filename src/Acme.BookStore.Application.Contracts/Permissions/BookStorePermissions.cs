@@ -33,6 +33,15 @@ public static class BookStorePermissions
         public const string Delete = Default + ".Delete";
     }
     #endregion
+
+    #region Orders
+    public static class Orders
+    {
+        public const string Default = GroupName + ".Orders";
+        public const string Create = Default + ".Create";
+        public const string Delete = Default + ".Delete";
+    }
+    #endregion
     //Add your own permission names. Example:
     //public const string MyPermission1 = GroupName + ".MyPermission1";
 }

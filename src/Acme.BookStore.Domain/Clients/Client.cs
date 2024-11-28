@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Acme.BookStore.ValueObjects;
+using System;
 using Volo.Abp;
 using Volo.Abp.Domain.Entities.Auditing;
 
@@ -8,6 +9,8 @@ namespace Acme.BookStore.Clients
     {
         public string Name { get; private set; }
         public ClientType Type { get; set; }
+        public Address HomeAddress { get; set; }
+        public Address BusinessAddress { get; set; }
 
         private Client()
         {

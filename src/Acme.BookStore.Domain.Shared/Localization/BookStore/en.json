@@ -50,7 +50,15 @@
     "Permission:Clients.Edit": "Editing the clients",
     "Permission:Clients.Delete": "Deleting the clients",
     "Menu:Clients": "Clients",
-    "Clients": "Clients"
+    "Clients": "Clients",
+    "BookStore:00003": "Some Product Not Exist",
+    "BookStore:000020": "Client with Id {id} Not Exist",
+    "Permission:Orders": "Orders Management",
+    "Permission:Orders.Create": "Creating new Orders",
+    "Permission:Orders.Delete": "Deleting the Orders",
+    "Menu:Orders": "Orders",
+    "Menu:chat": "chat"
+
 
 
 

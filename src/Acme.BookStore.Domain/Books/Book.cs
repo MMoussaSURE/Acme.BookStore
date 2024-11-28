@@ -2,8 +2,8 @@
 using Volo.Abp.Domain.Entities.Auditing;
 
 namespace Acme.BookStore.Books;
-
-public class Book : AuditedAggregateRoot<Guid>
+//public class Book : AuditedAggregateRoot<Guid>, IIsActive
+public class Book : AuditedAggregateRoot<Guid> 
 {
     public string Name { get; set; }
 
@@ -14,4 +14,5 @@ public class Book : AuditedAggregateRoot<Guid>
     public float Price { get; set; }
     public Guid AuthorId { get; set; }
 
+    //public bool IsActive { get; set; }
 }
