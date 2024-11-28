@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Acme.BookStore.Common.Address;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 
@@ -13,6 +14,10 @@ namespace Acme.BookStore.Clients
         [Required]
         [EnumDataType(typeof(ClientType))]
         public ClientType Type { get; set; }
+
+        public CreateAddressDto HomeAddress { get; set; }
+        public CreateAddressDto BusinessAddress { get; set; }
+
 
     }
 }

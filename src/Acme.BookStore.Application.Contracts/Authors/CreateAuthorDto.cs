@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Acme.BookStore.Authors;
@@ -13,4 +14,6 @@ public class CreateAuthorDto
     public DateTime BirthDate { get; set; }
 
     public string? ShortBio { get; set; }
+    public string? Image { get; set; }
+
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\common.props" />
 
@@ -14,12 +14,25 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Hangfire.Core" Version="1.8.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.2" />
     <PackageReference Include="Volo.Abp.Account.Application" Version="8.0.4" />
+    <PackageReference Include="Volo.Abp.BackgroundWorkers.Hangfire" Version="8.0.4" />
+    <PackageReference Include="Volo.Abp.Caching.StackExchangeRedis" Version="8.0.4" />
     <PackageReference Include="Volo.Abp.Identity.Application" Version="8.0.4" />
     <PackageReference Include="Volo.Abp.PermissionManagement.Application" Version="8.0.4" />
     <PackageReference Include="Volo.Abp.TenantManagement.Application" Version="8.0.4" />
     <PackageReference Include="Volo.Abp.FeatureManagement.Application" Version="8.0.4" />
     <PackageReference Include="Volo.Abp.SettingManagement.Application" Version="8.0.4" />
+	<PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
+	<PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
+	<PackageReference Include="System.Runtime.Handles" Version="4.3.0" />
+	<PackageReference Include="LinqKit.Microsoft.EntityFrameworkCore" Version="8.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Accounts\" />
   </ItemGroup>
 
 </Project>

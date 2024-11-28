@@ -1,11 +1,24 @@
-﻿using Volo.Abp.Account;
+using Volo.Abp.Account;
 using Volo.Abp.AutoMapper;
+using Volo.Abp.BackgroundJobs;
 using Volo.Abp.FeatureManagement;
 using Volo.Abp.Identity;
+using Volo.Abp.Localization;
 using Volo.Abp.Modularity;
 using Volo.Abp.PermissionManagement;
 using Volo.Abp.SettingManagement;
 using Volo.Abp.TenantManagement;
+using Volo.Abp.Caching.StackExchangeRedis;
+using Volo.Abp.Data;
+using Volo.Abp;
+using StackExchange.Redis;
+using Microsoft.Extensions.DependencyInjection;
+using Acme.BookStore.Clients;
+using Volo.Abp.BackgroundWorkers.Hangfire;
+using Volo.Abp.BackgroundWorkers;
+using Acme.BookStore.BackgroundJob;
+using System.Threading.Tasks;
+
 
 namespace Acme.BookStore;
 
@@ -19,13 +32,38 @@ namespace Acme.BookStore;
     typeof(AbpFeatureManagementApplicationModule),
     typeof(AbpSettingManagementApplicationModule)
     )]
-public class BookStoreApplicationModule : AbpModule
+[DependsOn(typeof(AbpLocalizationModule))]
+[DependsOn(typeof(AbpBackgroundJobsModule))]
+[DependsOn(typeof(AbpCachingStackExchangeRedisModule))]
+[DependsOn(typeof(AbpBackgroundWorkersHangfireModule))]
+    public class BookStoreApplicationModule : AbpModule
 {
     public override void ConfigureServices(ServiceConfigurationContext context)
     {
+     //   context.Services.AddScoped<IClientAppService, ClientAppService>();
         Configure<AbpAutoMapperOptions>(options =>
         {
             options.AddMaps<BookStoreApplicationModule>();
         });
+        Configure<AbpBackgroundJobWorkerOptions>(options =>
+        {
+            options.DefaultTimeout = 864000; //10 days (as seconds)
+        });
+
+        //The code below disables the ISoftDelete filter by default which will cause to include deleted entities when you query the database unless you explicitly enable the filter:
+        //Configure<AbpDataFilterOptions>(options =>
+        //{
+        //    options.DefaultStates[typeof(ISoftDelete)] = new DataFilterState(isEnabled: false);
+        //});
+
     }
+    public override async Task OnApplicationInitializationAsync(ApplicationInitializationContext context)
+    {
+        //await context.AddBackgroundWorkerAsync<RemoveOrdersWorker>();
+       // await context.AddBackgroundWorkerAsync<SendEmailWorker>();
+        await base.OnApplicationInitializationAsync(context);
+    }
+  
+
+
 }

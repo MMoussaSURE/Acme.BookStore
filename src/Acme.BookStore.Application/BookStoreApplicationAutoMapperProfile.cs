@@ -1,6 +1,10 @@
 ﻿using Acme.BookStore.Authors;
 using Acme.BookStore.Books;
 using Acme.BookStore.Clients;
+using Acme.BookStore.Common.Address;
+using Acme.BookStore.Orders;
+using Acme.BookStore.Products;
+using Acme.BookStore.ValueObjects;
 using AutoMapper;
 
 namespace Acme.BookStore;
@@ -24,6 +28,19 @@ public class BookStoreApplicationAutoMapperProfile : Profile
 
         #region Clients
         CreateMap<Client, ClientDto>();
+        #endregion
+
+        #region Orders
+        CreateMap<Order, OrderDto>();
+        CreateMap<OrderLine, OrderLineDto>();
+        #endregion
+
+        #region Products
+        CreateMap<Product, ProductDto>();
+        #endregion
+
+        #region Common
+        CreateMap<Address, AddressDto>();
         #endregion
     }
 }

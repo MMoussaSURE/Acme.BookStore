@@ -29,6 +29,15 @@ using Volo.Abp.Security.Claims;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
+using Volo.Abp.AspNetCore.ExceptionHandling;
+using Volo.Abp.Auditing;
+using Hangfire;
+using Volo.Abp.BackgroundJobs.Hangfire;
+using Volo.Abp.Hangfire;
+using Acme.BookStore.Common;
+using Microsoft.AspNetCore.Hosting;
+using Acme.BookStore.CustomMiddlewares;
+using Volo.Abp.AspNetCore.SignalR;
 
 namespace Acme.BookStore;
 
@@ -43,7 +52,9 @@ namespace Acme.BookStore;
     typeof(AbpAspNetCoreSerilogModule),
     typeof(AbpSwashbuckleModule)
 )]
-public class BookStoreHttpApiHostModule : AbpModule
+[DependsOn(typeof(AbpBackgroundJobsHangfireModule))]
+[DependsOn(typeof(AbpAspNetCoreSignalRModule))]
+    public class BookStoreHttpApiHostModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
@@ -70,8 +81,38 @@ public class BookStoreHttpApiHostModule : AbpModule
         ConfigureVirtualFileSystem(context);
         ConfigureCors(context, configuration);
         ConfigureSwaggerServices(context, configuration);
+
+        // added
+        Configure<AbpExceptionHandlingOptions>(options =>
+        {
+            options.SendExceptionsDetailsToClients = true;
+            options.SendStackTraceToClients = false;
+        });
+        Configure<AbpAuditingOptions>(options =>
+        {
+            options.IsEnabled = true; //Disables the auditing system
+            options.HideErrors = false;
+            options.IsEnabledForGetRequests = true;
+        });
+        ConfigureHangfire(context, configuration);
+        ConfigureOptions(hostingEnvironment, configuration);
     }
 
+    private void ConfigureOptions(IWebHostEnvironment hostEnvironment, IConfiguration configuration)
+    {
+        Configure<ImageSettings>(options =>
+        {
+            options.RootImagePath = Directory.GetDirectories(hostEnvironment.WebRootPath).Where(c => c.EndsWith("images")).FirstOrDefault() ?? "images";
+            options.AuthorImagesFolder = configuration.GetValue<string>("ImageSettings:AuthorImagesFolder");
+        });
+    }
+    private void ConfigureHangfire(ServiceConfigurationContext context, IConfiguration configuration)
+    {
+        context.Services.AddHangfire(config =>
+        {
+            config.UseSqlServerStorage(configuration.GetConnectionString("Default"));
+        });
+    }
     private void ConfigureAuthentication(ServiceConfigurationContext context)
     {
         context.Services.ForwardIdentityAuthenticationForBearer(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
@@ -191,7 +232,7 @@ public class BookStoreHttpApiHostModule : AbpModule
         {
             app.UseErrorPage();
         }
-
+        app.UseMiddleware<CustomExampleMiddleware>();
         app.UseCorrelationId();
         app.UseStaticFiles();
         app.UseRouting();
@@ -216,6 +257,11 @@ public class BookStoreHttpApiHostModule : AbpModule
             c.OAuthClientId(configuration["AuthServer:SwaggerClientId"]);
             c.OAuthScopes("BookStore");
         });
+        app.UseAbpHangfireDashboard("/hangfire", options =>
+        {
+            options.AsyncAuthorization = new[] { new AbpHangfireAuthorizationFilter() };
+        });
+
 
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();

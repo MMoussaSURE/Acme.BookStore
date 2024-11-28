@@ -2,6 +2,9 @@
 using Acme.BookStore.Books;
 using Acme.BookStore.Clients;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using System.Linq.Expressions;
+using System;
 using Volo.Abp.AuditLogging.EntityFrameworkCore;
 using Volo.Abp.BackgroundJobs.EntityFrameworkCore;
 using Volo.Abp.Data;
@@ -16,6 +19,9 @@ using Volo.Abp.PermissionManagement.EntityFrameworkCore;
 using Volo.Abp.SettingManagement.EntityFrameworkCore;
 using Volo.Abp.TenantManagement;
 using Volo.Abp.TenantManagement.EntityFrameworkCore;
+using Acme.BookStore.ValueObjects;
+using Acme.BookStore.Orders;
+using Acme.BookStore.Products;
 
 namespace Acme.BookStore.EntityFrameworkCore;
 
@@ -69,6 +75,16 @@ public class BookStoreDbContext :
     public DbSet<Client> Clients { get; set; }
     #endregion
 
+    #region Orders
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderLine> OrderLines { get; set; }
+    #endregion
+
+    #region Products
+    public DbSet<Product> Products { get; set; }
+    #endregion
+
+
     public BookStoreDbContext(DbContextOptions<BookStoreDbContext> options)
         : base(options)
     {
@@ -106,6 +122,7 @@ public class BookStoreDbContext :
             b.Property(x => x.Name).IsRequired().HasMaxLength(128);
             // ADD THE MAPPING FOR THE RELATION
             b.HasOne<Author>().WithMany().HasForeignKey(x => x.AuthorId).IsRequired();
+            //b.HasAbpQueryFilter(c => c.IsActive);
         });
         #endregion
 
@@ -138,7 +155,82 @@ public class BookStoreDbContext :
                 .HasMaxLength(AuthorConsts.MaxNameLength);
 
             b.HasIndex(x => x.Name);
+
+            b.ComplexProperty(x => x.HomeAddress);     // Mapping a Complex Type
+            b.ComplexProperty(x => x.BusinessAddress); // Mapping another Complex Type
+
         });
         #endregion
+
+        #region Order
+        builder.Entity<Order>(b =>
+        {
+            b.ToTable(BookStoreConsts.DbTablePrefix + "Orders",
+                BookStoreConsts.DbSchema);
+
+            b.ConfigureByConvention();
+
+            //Define the relation
+            b.HasMany(x => x.Lines)
+                .WithOne(x => x.Order)
+                .HasForeignKey(x => x.OrderId)
+                .IsRequired();
+        });
+
+        builder.Entity<OrderLine>(b =>
+        {
+            b.ToTable(BookStoreConsts.DbTablePrefix + "OrderLines",
+              BookStoreConsts.DbSchema);
+            b.ConfigureByConvention();
+        });
+        #endregion
+
+        #region Products
+        builder.Entity<Product>(b =>
+        {
+            b.ToTable(BookStoreConsts.DbTablePrefix + "Products",
+                BookStoreConsts.DbSchema);
+
+            b.ConfigureByConvention();
+
+            b.Property(x => x.Name)
+                .IsRequired()
+                .HasMaxLength(AuthorConsts.MaxNameLength);
+
+            b.HasIndex(x => x.Name);
+        });
+        #endregion
+
+
     }
+
+
+    //protected bool IsActiveFilterEnabled => DataFilter?.IsEnabled<IIsActive>() ?? false;
+
+    //protected override bool ShouldFilterEntity<TEntity>(IMutableEntityType entityType)
+    //{
+    //    if (typeof(IIsActive).IsAssignableFrom(typeof(TEntity)))
+    //    {
+    //        return true;
+    //    }
+
+    //    return base.ShouldFilterEntity<TEntity>(entityType);
+    //}
+
+    //protected override Expression<Func<TEntity, bool>> CreateFilterExpression<TEntity>()
+    //{
+    //    var expression = base.CreateFilterExpression<TEntity>();
+
+    //    if (typeof(IIsActive).IsAssignableFrom(typeof(TEntity)))
+    //    {
+    //        Expression<Func<TEntity, bool>> isActiveFilter =
+    //            e => !IsActiveFilterEnabled || EF.Property<bool>(e, "IsActive");
+    //        expression = expression == null
+    //            ? isActiveFilter
+    //            : QueryFilterExpressionHelper.CombineExpressions(expression, isActiveFilter);
+    //    }
+
+    //    return expression;
+    //}
+
 }
